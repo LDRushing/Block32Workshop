@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(require('morgan')('dev'));
 app.post('/api/flavors', async (req, res, next) => {
   try {
-    const SQL = 'SELECT * from notes ORDER By ranking ASC;'
+    const SQL = 'INSERT * from notes ORDER By ranking ASC;'
     const result = await client.query(SQL)
     res.send(result.rows)
   }catch(error){
@@ -36,12 +36,25 @@ app.get('/api/flavors:id', async (req, res, next) => {
   }
 });
 
-app.get('/api/flavors', async (req, res, next) => {}); 
-app.get('/api/flavors/:id', async (req, res, next) => {}); 
-app.put('/api/flavors/:id', async (req, res, next) => {});
-app.delete('/api/flavors/:id', async (req, res, next) => {});
-app.post('/api/flavors', async (req, res, next) => {}); 
+app.put('/api/flavors/:id', async (req, res, next) => {
+  try{
+    const SQL = `UPDATE * from notes ORDER BY ranking ASC;`
+    const result = await client.query(SQL)
+    res.send(result.rows)
 
+}catch(error){
+    next(error)
+}
+});
+app.delete('/api/flavors/:id', async (req, res, next) => {
+  try{
+    const SQL = `DELETE * from notes ORDER BY ranking ASC;`
+    const result = await client.query(SQL)
+    res.send(result.rows)
+}catch(error){
+    next(error)
+}
+});
 
 //Create an async function. 
 const app = express()
