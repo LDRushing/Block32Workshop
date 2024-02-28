@@ -16,7 +16,7 @@ app.use(require('morgan')('dev'))
 app.get('/api/flavors', async (req, res, next) => {
   try {
     const SQL = `
-      SELECT * from notes ORDER BY created_at DESC;
+      SELECT * from flavors ORDER BY created_at DESC;
     `
     const response = await client.query(SQL)
     res.send(response.rows)
@@ -25,10 +25,13 @@ app.get('/api/flavors', async (req, res, next) => {
   }
 })
 
-app.get('/api/flavors/${flavor}', async (req, res, next) => {
-  try {
+app.get('/api/flavors/:id', async (req, res, next) => { //Selects a specific flavor. 
+  try { 
+    const {params} = req //req >> Request, response, next
+    console.log(params);
+    const {id} = params //destructuring params.id. 
     const SQL = `
-      SELECT * from notes ORDER BY created_at DESC;
+      SELECT * from flavors where id = ${id}; 
     `
     const response = await client.query(SQL)
     res.send(response.rows)
@@ -40,11 +43,11 @@ app.get('/api/flavors/${flavor}', async (req, res, next) => {
 app.post('/api/flavors', async (req, res, next) => {
   try {
     const SQL = `
-      INSERT INTO notes(txt)
+      INSERT INTO flavors(flavor)
       VALUES($1)
       RETURNING *
     `
-    const response = await client.query(SQL, [req.body.txt])
+    const response = await client.query(SQL, [req.body.flavor])
     res.send(response.rows[0])
   } catch (ex) {
     next(ex)
@@ -55,7 +58,7 @@ app.post('/api/flavors', async (req, res, next) => {
 app.delete('/api/flavors/:id', async (req, res, next) => {
   try {
     const SQL = `
-      DELETE from notes
+      DELETE from flavors
       WHERE id = $1
     `
     const response = await client.query(SQL, [req.params.id])
@@ -69,11 +72,11 @@ app.delete('/api/flavors/:id', async (req, res, next) => {
 app.put('/api/flavors/:id', async (req, res, next) => {
   try {
     const SQL = `
-      UPDATE notes
-      SET txt=$1, ranking=$2, updated_at= now()
+      UPDATE flavors
+      SET flavor=$1, ranking=$2, updated_at= now()
       WHERE id=$3 RETURNING *
     `
-    const response = await client.query(SQL, [req.body.txt, req.body.ranking, req.params.id])
+    const response = await client.query(SQL, [req.body.flavor, req.body.ranking, req.params.id]) // << We send the flavor and ranking, but we put the params into the URL. The ranking helps us understand what the method actually does. 
     res.send(response.rows[0])
   } catch (ex) {
     next(ex)
@@ -85,8 +88,8 @@ app.put('/api/flavors/:id', async (req, res, next) => {
 const init = async () => {
   await client.connect()
   let SQL = `
-    DROP TABLE IF EXISTS notes;
-    CREATE TABLE notes(
+    DROP TABLE IF EXISTS flavors;
+    CREATE TABLE flavors(
       id SERIAL PRIMARY KEY,
       created_at TIMESTAMP DEFAULT now(),
       updated_at TIMESTAMP DEFAULT now(),
