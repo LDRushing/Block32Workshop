@@ -10,19 +10,7 @@ app.use(express.json())
 app.use(require('morgan')('dev'))
 
 // Create Notes - C
-app.post('/api/flavors', async (req, res, next) => {
-  try {
-    const SQL = `
-      INSERT INTO notes(txt)
-      VALUES($1)
-      RETURNING *
-    `
-    const response = await client.query(SQL, [req.body.txt])
-    res.send(response.rows[0])
-  } catch (ex) {
-    next(ex)
-  }
-})
+
 
 // Read Notes - R
 app.get('/api/flavors', async (req, res, next) => {
@@ -37,15 +25,26 @@ app.get('/api/flavors', async (req, res, next) => {
   }
 })
 
-// Update Notes - U
-app.put('/api/flavors/:id', async (req, res, next) => {
+app.get('/api/flavors/${flavor}', async (req, res, next) => {
   try {
     const SQL = `
-      UPDATE notes
-      SET txt=$1, ranking=$2, updated_at= now()
-      WHERE id=$3 RETURNING *
+      SELECT * from notes ORDER BY created_at DESC;
     `
-    const response = await client.query(SQL, [req.body.txt, req.body.ranking, req.params.id])
+    const response = await client.query(SQL)
+    res.send(response.rows)
+  } catch (ex) {
+    next(ex)
+  }
+})
+
+app.post('/api/flavors', async (req, res, next) => {
+  try {
+    const SQL = `
+      INSERT INTO notes(txt)
+      VALUES($1)
+      RETURNING *
+    `
+    const response = await client.query(SQL, [req.body.txt])
     res.send(response.rows[0])
   } catch (ex) {
     next(ex)
@@ -66,6 +65,21 @@ app.delete('/api/flavors/:id', async (req, res, next) => {
   }
 })
 
+// Update Notes - U
+app.put('/api/flavors/:id', async (req, res, next) => {
+  try {
+    const SQL = `
+      UPDATE notes
+      SET txt=$1, ranking=$2, updated_at= now()
+      WHERE id=$3 RETURNING *
+    `
+    const response = await client.query(SQL, [req.body.txt, req.body.ranking, req.params.id])
+    res.send(response.rows[0])
+  } catch (ex) {
+    next(ex)
+  }
+})
+
 // create and run the express app
 
 const init = async () => {
@@ -77,15 +91,15 @@ const init = async () => {
       created_at TIMESTAMP DEFAULT now(),
       updated_at TIMESTAMP DEFAULT now(),
       ranking INTEGER DEFAULT 3 NOT NULL,
-      txt VARCHAR(255) NOT NULL
+      flavor VARCHAR(255) NOT NULL
     );
   `
   await client.query(SQL)
   console.log('tables created')
  SQL = `
-    INSERT INTO notes(txt, ranking) VALUES('learn express', 5);
-    INSERT INTO notes(txt, ranking) VALUES('write SQL queries', 4);
-    INSERT INTO notes(txt, ranking) VALUES('create routes', 2);
+    INSERT INTO flavors(flavor, ranking) VALUES('vanilla', 1);
+    INSERT INTO flavors(flavor, ranking) VALUES('chocolate', 2);
+    INSERT INTO flavors(flavor, ranking) VALUES('strawberry', 3);
   `
   await client.query(SQL)
   console.log('data seeded')
