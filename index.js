@@ -9,10 +9,10 @@ app.use(express.json())
 // Log the requests as they come in
 app.use(require('morgan')('dev'))
 
-// Create Notes - C
+// Create flavors - C
 
 
-// Read Notes - R
+// Read flavors - R
 app.get('/api/flavors', async (req, res, next) => {
   try {
     const SQL = `
