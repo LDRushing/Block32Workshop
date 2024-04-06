@@ -68,7 +68,7 @@ app.delete('/api/flavors/:id', async (req, res, next) => {
   }
 })
 
-// Update Notes - U
+// Update flavors - U
 app.put('/api/flavors/:id', async (req, res, next) => {
   try {
     const SQL = `
